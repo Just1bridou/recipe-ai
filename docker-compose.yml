@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  recipe:
+    build: .
+    networks:
+      - traefic
+    restart: always
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DB_NAME=${MONGODB_DB_NAME}
+      - LM_STUDIO_BASE_URL=${LM_STUDIO_BASE_URL}
+      - APP_PASSWORD=${APP_PASSWORD}
+      - APP_SESSION_SECRET=${APP_SESSION_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.services.recipe.loadbalancer.server.port=9006"
+
+      - "traefik.http.routers.recipe.entrypoints=websecure"
+      - "traefik.http.routers.recipe.rule=Host(`recipe.justinam.fr`)"
+      - "traefik.http.routers.recipe.tls=true"
+      - "traefik.http.routers.recipe.tls.certresolver=letsencrypt"
+
+networks:
+  traefic:
+    external: true

@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "kill-debug-port",
+      "type": "shell",
+      "command": "lsof -ti:9229 | xargs kill -9 || true",
+      "isBackground": false,
+      "presentation": {
+        "reveal": "silent"
+      }
+    }
+  ]
+}

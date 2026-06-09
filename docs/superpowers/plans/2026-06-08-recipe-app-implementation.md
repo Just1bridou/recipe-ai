@@ -13,6 +13,7 @@
 ### Task 1: Bootstrap Project and Baseline Tooling
 
 **Files:**
+
 - Create: `package.json`
 - Create: `next.config.ts`
 - Create: `tsconfig.json`
@@ -75,6 +76,7 @@ git commit -m "chore: bootstrap nextjs recipe app with test tooling"
 ### Task 2: Define Data Models and DB Connection (TDD)
 
 **Files:**
+
 - Create: `src/lib/db.ts`
 - Create: `src/lib/models/setting.ts`
 - Create: `src/lib/models/recipe.ts`
@@ -164,6 +166,7 @@ git commit -m "feat: add mongodb models and zod schemas"
 ### Task 3: Implement Season and Category Distribution Services (TDD)
 
 **Files:**
+
 - Create: `src/lib/services/season.ts`
 - Create: `src/lib/services/category-distribution.ts`
 - Test: `src/lib/services/season.test.ts`
@@ -208,7 +211,9 @@ Expected: FAIL (services missing)
 
 ```ts
 // src/lib/services/season.ts
-export function seasonFromMonth(month: number): "printemps" | "ete" | "automne" | "hiver" {
+export function seasonFromMonth(
+  month: number,
+): "printemps" | "ete" | "automne" | "hiver" {
   if ([12, 1, 2].includes(month)) return "hiver";
   if ([3, 4, 5].includes(month)) return "printemps";
   if ([6, 7, 8].includes(month)) return "ete";
@@ -231,6 +236,7 @@ git commit -m "feat: add season and category distribution logic"
 ### Task 4: Build LM Studio Client and Response Parsing (TDD)
 
 **Files:**
+
 - Create: `src/lib/clients/lm-studio.ts`
 - Create: `src/lib/services/prompt-builder.ts`
 - Create: `src/lib/services/recipe-parser.ts`
@@ -245,7 +251,26 @@ import { parseRecipePayload } from "@/lib/services/recipe-parser";
 
 describe("parseRecipePayload", () => {
   it("extracts valid recipe array from model JSON", () => {
-    const raw = JSON.stringify({ recipes: [{ title: "x", category: "plat", seasonTag: "ete", nutritionTag: "leger", mainIngredient: "courgette", preview: "ok ok ok ok", details: { ingredients: ["a"], steps: ["b"], prepTime: 1, cookTime: 2, servings: 2, healthTips: [] } }] });
+    const raw = JSON.stringify({
+      recipes: [
+        {
+          title: "x",
+          category: "plat",
+          seasonTag: "ete",
+          nutritionTag: "leger",
+          mainIngredient: "courgette",
+          preview: "ok ok ok ok",
+          details: {
+            ingredients: ["a"],
+            steps: ["b"],
+            prepTime: 1,
+            cookTime: 2,
+            servings: 2,
+            healthTips: [],
+          },
+        },
+      ],
+    });
     const parsed = parseRecipePayload(raw);
     expect(parsed.length).toBe(1);
   });
@@ -284,6 +309,7 @@ git commit -m "feat: add lm studio client and recipe parser"
 ### Task 5: Implement Generation Service with Anti-Duplication (TDD)
 
 **Files:**
+
 - Create: `src/lib/services/generation-service.ts`
 - Test: `src/lib/services/generation-service.test.ts`
 
@@ -317,9 +343,11 @@ Expected: FAIL
 // src/lib/services/generation-service.ts
 export function filterByMainIngredient<T extends { mainIngredient: string }>(
   candidates: T[],
-  blocked: Set<string>
+  blocked: Set<string>,
 ): T[] {
-  return candidates.filter((c) => !blocked.has(c.mainIngredient.toLowerCase().trim()));
+  return candidates.filter(
+    (c) => !blocked.has(c.mainIngredient.toLowerCase().trim()),
+  );
 }
 ```
 
@@ -338,6 +366,7 @@ git commit -m "feat: implement generation anti-duplication service"
 ### Task 6: Implement API Routes and Integration Tests (TDD)
 
 **Files:**
+
 - Create: `src/app/api/models/route.ts`
 - Create: `src/app/api/settings/route.ts`
 - Create: `src/app/api/generations/route.ts`
@@ -392,6 +421,7 @@ git commit -m "feat: add api routes for models settings generations and recipes"
 ### Task 7: Build UI Pages and Components (TDD)
 
 **Files:**
+
 - Modify: `src/app/page.tsx`
 - Create: `src/components/generation-form.tsx`
 - Create: `src/components/settings-panel.tsx`
@@ -429,17 +459,37 @@ Expected: FAIL
 
 import { useState } from "react";
 
-type Props = { loading: boolean; onSubmit: (payload: { recipeCount: number; categories: string[] }) => Promise<void> };
+type Props = {
+  loading: boolean;
+  onSubmit: (payload: {
+    recipeCount: number;
+    categories: string[];
+  }) => Promise<void>;
+};
 
 export function GenerationForm({ loading, onSubmit }: Props) {
   const [recipeCount, setRecipeCount] = useState(7);
   const [categories, setCategories] = useState<string[]>(["plat", "salade"]);
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); void onSubmit({ recipeCount, categories }); }}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        void onSubmit({ recipeCount, categories });
+      }}
+    >
       <label htmlFor="recipeCount">Nombre de recettes</label>
-      <input id="recipeCount" type="number" min={1} max={30} value={recipeCount} onChange={(e) => setRecipeCount(Number(e.target.value))} />
-      <button type="submit" disabled={loading}>{loading ? "Generation..." : "Generer la semaine"}</button>
+      <input
+        id="recipeCount"
+        type="number"
+        min={1}
+        max={30}
+        value={recipeCount}
+        onChange={(e) => setRecipeCount(Number(e.target.value))}
+      />
+      <button type="submit" disabled={loading}>
+        {loading ? "Generation..." : "Generer la semaine"}
+      </button>
     </form>
   );
 }
@@ -460,6 +510,7 @@ git commit -m "feat: add recipe week ui with preview and detail"
 ### Task 8: End-to-End Verification and Runbook
 
 **Files:**
+
 - Create: `e2e/weekly-generation.spec.ts`
 - Create: `README.md`
 
@@ -487,16 +538,19 @@ Expected: PASS (with LM Studio running locally and MongoDB available)
 # Local Recipe Generator
 
 ## Requirements
+
 - Node.js 20+
 - MongoDB local
 - LM Studio running local API
 
 ## Setup
+
 1. `cp .env.example .env.local`
 2. `npm install`
 3. `npm run dev`
 
 ## Tests
+
 - `npm run test`
 - `npx playwright test`
 ```
@@ -516,6 +570,7 @@ git commit -m "test: add e2e smoke test and local runbook"
 ## Self-Review Notes
 
 Spec coverage check:
+
 - Seasonal mapping by month: covered by Task 3.
 - Category checkbox + automatic distribution: covered by Task 3 + Task 7.
 - 7 recipes default + custom count: covered by Task 6 + Task 7.
@@ -525,8 +580,10 @@ Spec coverage check:
 - MongoDB history persistence: covered by Task 2 + Task 6.
 
 Placeholder scan:
+
 - No TODO/TBD placeholders remain.
 
 Type consistency:
+
 - Category enum uses `entree|apero|plat|salade|dessert` consistently.
 - Season enum uses `printemps|ete|automne|hiver` consistently.
