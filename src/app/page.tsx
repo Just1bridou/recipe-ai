@@ -6,10 +6,70 @@ import { RecipeCard } from "@/components/RecipeCard";
 import { RecipeDetail } from "@/components/RecipeDetail";
 import { BottomSheet } from "@/components/BottomSheet";
 import { shortModelName } from "@/components/labels";
-import type { Category, RecipeDetailData, RecipePreview } from "@/components/types";
+import type {
+  Category,
+  RecipeDetailData,
+  RecipePreview,
+} from "@/components/types";
 
 type LmStatus = "checking" | "online" | "offline";
 type Provider = "chatgpt" | "lm-studio";
+
+function LmStudioUrlField({
+  value,
+  onSave,
+}: {
+  value: string;
+  onSave: (url: string) => void;
+}) {
+  const [draft, setDraft] = useState(value);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  function handleBlur() {
+    if (draft !== value) onSave(draft);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      e.currentTarget.blur();
+    }
+  }
+
+  return (
+    <div style={{ marginBottom: "0.75rem" }}>
+      <label
+        className="field-label"
+        htmlFor="lm-url"
+        style={{ display: "block", marginBottom: "0.4rem" }}
+      >
+        URL LM Studio
+      </label>
+      <input
+        id="lm-url"
+        type="url"
+        value={draft}
+        placeholder="http://127.0.0.1:1234"
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        className="w-full rounded-xl px-4 py-2 text-sm outline-none"
+        style={{
+          background: "var(--surface-soft)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--r-sm)",
+          color: "var(--text)",
+        }}
+      />
+      <small style={{ color: "var(--muted)" }}>
+        Laisse vide pour utiliser la valeur par défaut de{" "}
+        <code>LM_STUDIO_BASE_URL</code>
+      </small>
+    </div>
+  );
+}
 
 interface Model {
   id: string;
@@ -58,7 +118,8 @@ export default function Home() {
       if (res.ok && data.settings) {
         if (data.settings.provider) setProvider(data.settings.provider);
         if (data.settings.modelId) setSelectedModel(data.settings.modelId);
-        if (data.settings.lmStudioUrl) setLmStudioUrl(data.settings.lmStudioUrl);
+        if (data.settings.lmStudioUrl)
+          setLmStudioUrl(data.settings.lmStudioUrl);
       }
     } catch {
       // silent — settings are best-effort
@@ -300,6 +361,8 @@ export default function Home() {
 
         {provider === "lm-studio" && (
           <>
+            <LmStudioUrlField value={lmStudioUrl} onSave={saveLmStudioUrl} />
+
             <div className="status-row">
               <span className={`dot ${lmStatus}`} />
               <div>
@@ -324,7 +387,9 @@ export default function Home() {
                       onClick={() => void selectModel(m.id)}
                     >
                       <span className="model-radio" />
-                      <span className="model-name">{shortModelName(m.name)}</span>
+                      <span className="model-name">
+                        {shortModelName(m.name)}
+                      </span>
                     </button>
                   );
                 })}
@@ -333,7 +398,8 @@ export default function Home() {
 
             {lmStatus === "online" && models.length === 0 && (
               <p className="sheet-hint">
-                Aucun modèle chargé dans LM Studio. Charge un modèle puis actualise.
+                Aucun modèle chargé dans LM Studio. Charge un modèle puis
+                actualise.
               </p>
             )}
 
